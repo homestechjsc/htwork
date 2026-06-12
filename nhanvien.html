@@ -2,7 +2,7 @@
 <html lang="vi" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9, user-scalable=no, viewport-fit=cover">
     <!-- Dán đoạn này vào trong thẻ <head> của cả login.html và nhanvien.html -->
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -57,9 +57,12 @@
         }
 
         body { 
-            -webkit-tap-highlight-color: transparent; 
-            font-family: 'Inter', sans-serif;
-        }
+    -webkit-tap-highlight-color: transparent; 
+    font-family: 'Inter', sans-serif;
+    /* 👉 BỔ SUNG THÊM 2 DÒNG NÀY ĐỂ CHỮ TO RÕ RÀNG HƠN TRÊN MOBILE */
+    font-size: 15px; 
+    -webkit-text-size-adjust: 100%;
+}
         .app-panel { display: none; }
         .app-panel.active { display: flex; flex-direction: column; animation: erpSmoothUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes erpSmoothUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
