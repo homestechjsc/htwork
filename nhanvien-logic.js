@@ -642,7 +642,8 @@ if (btnSaveNewPwd) {
 // =========================================================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
+        // 👉 ĐÃ SỬA: Chuyển đổi từ '/sw.js' sang './sw.js' để nhận diện đúng thư mục GitHub Pages
+        navigator.serviceWorker.register('./sw.js')
             .then(reg => console.log('PWA Service Worker đã đăng ký thành công!', reg))
             .catch(err => console.log('Lỗi đăng ký PWA:', err));
     });
