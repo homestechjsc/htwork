@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Trưởng Phòng Kỹ Thuật - HomesTech ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body class="bg-slate-100">
+
+<div class="flex min-h-screen">
+    <aside class="w-64 bg-slate-900 text-white hidden md:block">
+        <div class="p-6 border-b border-slate-700">
+            <h1 class="text-xl font-bold">HomesTech ERP</h1>
+            <p class="text-sm text-slate-400">Phòng Kỹ Thuật</p>
+        </div>
+        <nav class="p-4 space-y-2" id="sidebar-nav">
+            <a href="#" data-tab="tab-dashboard" class="menu-item block p-3 rounded-lg bg-blue-600 text-white"><i class="fa fa-chart-line mr-2"></i> Dashboard</a>
+            <a href="#" data-tab="tab-kehoach" class="menu-item block p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa fa-calendar mr-2"></i> Kế hoạch ngày</a>
+            <a href="#" data-tab="tab-baocao" class="menu-item block p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa fa-clipboard-check mr-2"></i> Báo cáo ngày</a>
+            <a href="#" data-tab="tab-khachhang" class="menu-item block p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa fa-address-book mr-2"></i> Khách hàng</a>
+            <a href="#" data-tab="tab-nhansu" class="menu-item block p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa fa-users mr-2"></i> Nhân sự</a>
+            <a href="#" data-tab="tab-congviec" class="menu-item block p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa fa-gears mr-2"></i> Công việc kỹ thuật</a>
+            <a href="#" data-tab="tab-dexuat" class="menu-item block p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa fa-file-invoice mr-2"></i> Đề xuất vật tư</a>
+        </nav>
+    </aside>
+
+    <main class="flex-1">
+        <header class="bg-white shadow-sm p-5 flex justify-between items-center">
+            <div>
+                <h2 id="header-title" class="text-2xl font-bold text-slate-800">Dashboard Trưởng Phòng Kỹ Thuật</h2>
+                <p class="text-slate-500">Quản lý công việc & nhân sự hằng ngày (Real-time)</p>
+            </div>
+            <div class="flex gap-3">
+                <button id="btn-save" class="bg-blue-600 text-white px-4 py-2 rounded-lg"><i class="fa fa-save mr-2"></i>Lưu thông tin chung</button>
+                <button onclick="window.print()" class="bg-green-600 text-white px-4 py-2 rounded-lg"><i class="fa fa-print mr-2"></i>In báo cáo</button>
+            </div>
+        </header>
+
+        <div class="p-6">
+            <div id="tab-dashboard" class="tab-content space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                    <div class="bg-white rounded-xl shadow p-5"><p class="text-slate-500">Tổng công việc</p><h3 id="stat-total" class="text-4xl font-bold mt-2">0</h3></div>
+                    <div class="bg-white rounded-xl shadow p-5"><p class="text-slate-500">Đã hoàn thành</p><h3 id="stat-completed" class="text-4xl font-bold text-green-600 mt-2">0</h3></div>
+                    <div class="bg-white rounded-xl shadow p-5"><p class="text-slate-500">Đang thực hiện</p><h3 id="stat-progress" class="text-4xl font-bold text-orange-500 mt-2">0</h3></div>
+                    <div class="bg-white rounded-xl shadow p-5"><p class="text-slate-500">Tạm ngưng / Chờ làm</p><h3 id="stat-pending" class="text-4xl font-bold text-red-600 mt-2">0</h3></div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow text-center text-slate-500 font-medium">Chào mừng bạn quay lại hệ thống ERP HomesTech. Hãy sử dụng thanh điều hướng bên trái để quản lý dữ liệu.</div>
+            </div>
+
+            <div id="tab-kehoach" class="tab-content hidden space-y-6">
+                <div class="bg-white rounded-xl shadow p-6">
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <input id="ngay" type="date" class="border rounded-lg p-3">
+                        <input id="truongphong" placeholder="Trưởng phòng" class="border rounded-lg p-3">
+                        <input id="muctieu" placeholder="Mục tiêu chiến lược trong ngày" class="border rounded-lg p-3 col-span-2">
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-baocao" class="tab-content hidden space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl shadow p-6"><textarea id="ketqua" class="w-full border rounded-lg p-3 h-60" placeholder="Kết quả thực hiện ca..."></textarea></div>
+                    <div class="bg-white rounded-xl shadow p-6"><textarea id="suco" class="w-full border rounded-lg p-3 h-60" placeholder="Sự cố tồn đọng..."></textarea></div>
+                </div>
+            </div>
+
+            <div id="tab-khachhang" class="tab-content hidden space-y-6">
+                <div class="bg-white rounded-xl shadow p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Quản lý Đối Tác & Khách Hàng</h3>
+                            <p class="text-xs text-slate-400 mt-1">Lưu trữ thông tin liên hệ và danh sách hệ thống chi nhánh trực thuộc khách hàng.</p>
+                        </div>
+                        <button id="btn-open-customer-modal" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow">+ Thêm khách hàng mới</button>
+                    </div>
+                    <div class="overflow-auto">
+                        <table class="w-full border text-sm">
+                            <thead class="bg-slate-100 font-bold">
+                                <tr>
+                                    <th class="border p-3 text-left">Tên đối tác / Doanh nghiệp</th>
+                                    <th class="border p-3 text-left">Số điện thoại</th>
+                                    <th class="border p-3 text-left">Địa chỉ chính</th>
+                                    <th class="border p-3 text-left">Các chi nhánh trực thuộc</th>
+                                    <th class="border p-3 text-center w-36">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customerTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="customer-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-[60]">
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden m-4 animate-fade-in">
+                    <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+                        <h3 id="customer-modal-title" class="text-md font-bold"><i class="fa fa-user-plus mr-2 text-blue-400"></i>Hồ sơ khách hàng đối tác</h3>
+                        <button type="button" class="btn-close-customer text-slate-400 hover:text-white text-lg"><i class="fa fa-xmark"></i></button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <input type="hidden" id="edit-cust-id" value="">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tên khách hàng / Công ty <span class="text-red-500">*</span></label>
+                            <input id="cust-name" type="text" placeholder="Ví dụ: Chuỗi Cafe Cá Koi Đà Lạt" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Số điện thoại liên hệ <span class="text-red-500">*</span></label>
+                            <input id="cust-phone" type="text" placeholder="Nhập số hotline..." class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Địa chỉ trụ sở chính</label>
+                            <input id="cust-address" type="text" placeholder="Số nhà, tên đường, phường..." class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Danh sách chi nhánh (Mỗi chi nhánh một dòng)</label>
+                            <textarea id="cust-branches" rows="3" placeholder="Chi nhánh 1: 02 Trần Phú&#10;Chi nhánh 2: 15 Phan Đình Phùng" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 font-mono text-xs"></textarea>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-slate-50 border-t flex justify-end gap-2">
+                        <button type="button" class="btn-close-customer px-4 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200 rounded-lg">Đóng</button>
+                        <button id="btn-save-customer" class="px-5 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm">Lưu dữ liệu đối tác</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-nhansu" class="tab-content hidden space-y-6">
+                <div class="bg-white rounded-xl shadow p-6">
+                    <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold text-slate-800">Danh sách & Phân quyền Nhân sự</h3><button id="btn-open-user-form" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow">+ Thêm nhân sự</button></div>
+                    <div class="overflow-auto">
+                        <table class="w-full border text-sm">
+                            <thead class="bg-slate-100 font-bold"><tr><th class="border p-3 text-left">Tên nhân viên</th><th class="border p-3 text-left">Email</th><th class="border p-3 text-left">Tài khoản</th><th class="border p-3 text-left">Mật khẩu</th><th class="border p-3 w-40 text-center">Phân quyền</th><th class="border p-3 w-36 text-center">Hành động</th></tr></thead>
+                            <tbody id="userBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="user-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50">
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden m-4">
+                    <div class="bg-slate-900 text-white p-4 flex justify-between items-center"><h3 class="text-md font-bold">Thêm nhân sự mới</h3><button id="btn-close-user-form" class="text-slate-400 text-lg"><i class="fa fa-xmark"></i></button></div>
+                    <div class="p-6 space-y-4">
+                        <input id="new-user-name" placeholder="Họ và tên *" class="w-full border rounded-lg p-2.5 text-sm outline-none"><input id="new-user-email" placeholder="Email" class="w-full border rounded-lg p-2.5 text-sm outline-none"><input id="new-user-username" placeholder="Tài khoản đăng nhập *" class="w-full border rounded-lg p-2.5 text-sm outline-none"><input id="new-user-password" type="password" placeholder="Mật khẩu *" class="w-full border rounded-lg p-2.5 text-sm outline-none">
+                        <select id="new-user-role" class="w-full border rounded-lg p-2.5 text-sm bg-slate-50 font-medium"><option>Nhân viên</option><option>Trưởng nhóm</option><option>Trưởng phòng</option></select>
+                    </div>
+                    <div class="p-4 bg-slate-50 border-t flex justify-end gap-2"><button id="btn-cancel-user" class="px-4 py-2 text-sm text-slate-500">Hủy</button><button id="btn-add-user" class="px-5 py-2 text-sm text-white bg-emerald-600 rounded-lg">Kích hoạt lưu</button></div>
+                </div>
+            </div>
+
+            <div id="tab-congviec" class="tab-content hidden space-y-6">
+    <div class="bg-white rounded-xl shadow p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3 class="text-xl font-bold text-slate-800">Quản lý Quy trình Công việc Kỹ Thuật</h3>
+                <p class="text-xs text-slate-400 mt-1">Điều phối, giám sát và theo dõi vị trí kỹ thuật viên tại thực địa (Sắp xếp Z-A).</p>
+            </div>
+            <button id="btn-open-task-form" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow"><i class="fa fa-plus-circle mr-1"></i> + Khởi tạo công việc</button>
+        </div>
+        
+        <!-- CẬP NHẬT THANH BỘ LỌC ĐA NĂNG TRONG index.html (Thay thế đoạn cũ) -->
+<div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 grid grid-cols-1 md:grid-cols-6 gap-3 text-slate-700">
+    <!-- 1. Ô tìm kiếm từ khóa -->
+    <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+            <i class="fa fa-search text-xs"></i>
+        </span>
+        <input type="text" id="filter-tech-search" placeholder="Mã CV, Khách hàng, SĐT..." class="w-full bg-white border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm outline-none focus:border-blue-500 font-medium">
+    </div>
+    
+    <!-- 👉 BỔ SUNG: 2. Từ ngày -->
+    <div class="flex items-center gap-1.5">
+        <span class="text-xs font-semibold text-slate-400 whitespace-nowrap">Từ:</span>
+        <input type="date" id="filter-tech-start-date" class="w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-sm outline-none focus:border-blue-500 font-mono font-medium">
+    </div>
+
+    <!-- 👉 BỔ SUNG: 3. Đến ngày -->
+    <div class="flex items-center gap-1.5">
+        <span class="text-xs font-semibold text-slate-400 whitespace-nowrap">Đến:</span>
+        <input type="date" id="filter-tech-end-date" class="w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-sm outline-none focus:border-blue-500 font-mono font-medium">
+    </div>
+
+    <!-- 4. Lọc theo loại hình -->
+    <div>
+        <select id="filter-tech-type" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500 font-medium">
+            <option value="all">-- Loại hình --</option>
+            <option value="Dịch vụ">Dịch vụ</option>
+            <option value="Bảo trì">Bảo trì</option>
+            <option value="Công trình">Công trình</option>
+            <option value="Dự án">Dự án</option>
+        </select>
+    </div>
+
+    <!-- 5. Lọc theo trạng thái thực tế -->
+    <div>
+        <select id="filter-tech-status" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500 font-medium">
+            <option value="all">-- Trạng thái --</option>
+            <option value="pending">Chờ làm</option>
+            <option value="in-progress">Đang làm</option>
+            <option value="overtime-in">Đang tăng ca</option>
+            <option value="paused">Tạm ngưng</option>
+            <option value="completed">Đã xong</option>
+        </select>
+    </div>
+
+    <!-- 6. Lọc nguồn gốc -->
+    <div>
+        <select id="filter-tech-origin" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500 font-medium">
+            <option value="all">-- Nguồn gốc phiếu --</option>
+            <option value="all">Tất cả nguồn</option>
+            <option value="admin">Trưởng phòng tạo</option>
+            <option value="self">Kỹ thuật tự tạo</option>
+        </select>
+    </div>
+</div>
+
+        <div class="overflow-auto">
+            <table class="w-full border text-sm text-left">
+                <thead class="bg-slate-100 font-bold uppercase text-[11px] tracking-wider text-slate-700">
+                    <tr>
+                        <th class="border p-3">Mã CV</th>
+                        <th class="border p-3">Khách Hàng / Chi Nhánh</th>
+                        <th class="border p-3">Loại hình</th>
+                        <th class="border p-3">Nội dung công việc</th>
+                        <th class="border p-3">Nhân viên xử lý</th>
+                        <th class="border p-3">Chi phí dự kiến</th>
+                        <th class="border p-3 text-center">Trạng thái thực tế</th>
+                        <th class="border p-3 text-center">Độ ưu tiên</th>
+                        <th class="border p-3 text-center w-40">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="techTaskBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="tab-dexuat" class="tab-content hidden space-y-6">
+    
+    <div class="bg-white rounded-xl shadow p-6 border border-slate-100">
+        <div class="border-b pb-3 mb-4">
+            <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa fa-file-signature text-blue-600"></i> Khởi tạo yêu cầu cung ứng vật tư (Trưởng phòng)
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Lập phiếu yêu cầu cấp phát thiết bị, linh kiện tổng kho.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end text-xs font-bold text-slate-500 uppercase tracking-wide">
+            <div>
+                <label class="block mb-1.5">Mã lệnh việc liên quan (Mã CV)</label>
+                <input id="admin-prop-task-id" type="text" placeholder="Ví dụ: CV0001 (Nếu có)..." class="w-full border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 font-mono font-bold tracking-wider uppercase bg-slate-50/50">
+            </div>
+            <div class="md:col-span-2 flex gap-3 items-end">
+                <div class="flex-1">
+                    <label class="block mb-1.5">Nội dung thiết bị đề xuất cấp phát <span class="text-red-500">*</span></label>
+                    <input id="admin-prop-content" type="text" placeholder="Ví dụ: 03 Camera Hikvision 2MP, 01 Cuộn dây cáp Cat6 sino..." class="w-full border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 normal-case font-medium bg-slate-50/50">
+                </div>
+                <button id="btn-admin-submit-proposal" class="bg-blue-600 hover:bg-blue-700 text-white font-mono font-bold px-5 py-2.5 h-[38px] rounded-xl shadow-sm shadow-blue-500/10 active:scale-95 transition whitespace-nowrap">
+                    <i class="fa fa-paper-plane mr-1"></i> GỬI DUYỆT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-6 border border-slate-100">
+        <div class="mb-4">
+            <h3 class="text-lg font-bold text-slate-800">Danh sách Đề xuất Cung ứng Vật tư Real-time</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Tiếp nhận, thẩm định và phê duyệt vật tư từ các ca trực thực địa.</p>
+        </div>
+
+        <div class="overflow-auto rounded-xl border border-slate-100">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead class="bg-slate-900 font-mono text-[10px] font-bold uppercase tracking-wider text-slate-300">
+                    <tr>
+                        <th class="p-3.5 border-b pl-5">Thời gian</th>
+                        <th class="p-3.5 border-b">Nhân sự đề xuất</th>
+                        <th class="p-3.5 border-b font-mono">Mã việc kèm</th>
+                        <th class="p-3.5 border-b w-1/3 normal-case">Danh mục linh kiện / Thiết bị yêu cầu</th>
+                        <th class="p-3.5 border-b text-center">Trạng thái duyệt</th>
+                        <th class="p-3.5 border-b text-center pr-5">Thao tác xử lý</th>
+                    </tr>
+                </thead>
+                <tbody id="adminProposalTableBody" class="text-slate-700">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+            <div id="task-modal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col border border-slate-100 max-h-[90vh]">
+        
+        <div class="bg-slate-900 px-6 py-4 flex justify-between items-center text-white">
+            <h4 id="task-modal-title" class="font-bold flex items-center gap-2 text-sm uppercase font-mono tracking-wider">
+                <i class="fa fa-gears text-blue-400"></i> Khởi tạo phiếu công việc kỹ thuật
+            </h4>
+            <button type="button" id="btn-close-task-form" class="text-slate-400 hover:text-white transition active:scale-95">
+                <i class="fa fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <form id="tech-task-form" class="flex-1 p-6 overflow-y-auto space-y-5 text-[11px] font-bold text-slate-500 uppercase tracking-wide">
+            <input type="hidden" id="edit-task-key" value="">
+
+            <div class="grid grid-cols-2 gap-4 bg-slate-50/60 p-3 rounded-xl border border-slate-200/50">
+                <div>
+                    <label class="block mb-1 text-slate-400">Mã công việc (Mã CV)</label>
+                    <input id="tech-id" type="text" class="w-full border border-slate-200 rounded-lg p-2 text-xs outline-none bg-slate-100 text-slate-500 font-mono font-bold" disabled>
+                </div>
+                <div>
+                    <label class="block mb-1 text-slate-400">Ngày tạo phiếu</label>
+                    <input id="tech-created-at" type="date" class="w-full border border-slate-200 rounded-lg p-2 text-xs text-slate-800 outline-none font-mono normal-case font-medium bg-white">
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <div class="text-[11px] font-extrabold text-blue-600 border-b pb-1 flex items-center gap-1"><i class="fa fa-building"></i> Đối tác & Vị trí thi công</div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block mb-1">Chọn đối tác khách hàng <span class="text-red-500">*</span></label>
+                        <div class="flex gap-1.5 relative">
+                            <input id="tech-customer-search" type="text" list="customer-list" placeholder="🔍 Nhập tên hoặc số điện thoại để lọc..." class="w-full border border-slate-200 rounded-lg p-2.5 text-xs outline-none focus:border-blue-500 normal-case font-medium text-slate-800 bg-white">
+                            <datalist id="customer-list"></datalist>
+                            <button id="btn-quick-add-customer" type="button" class="bg-emerald-600 text-white px-3 text-[10px] font-bold rounded-lg hover:bg-emerald-700 whitespace-nowrap shadow-sm active:scale-95 transition">+ Thêm mới</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block mb-1">Chi nhánh xử lý</label>
+                        <select id="tech-branch-select" class="w-full border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 normal-case font-medium bg-white">
+                            <option value="Trụ sở chính">Trụ sở chính (Mặc định)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3 pt-1">
+                <div class="text-[11px] font-extrabold text-blue-600 border-b pb-1 flex items-center gap-1"><i class="fa fa-sliders"></i> Cấu hình nghiệp vụ & Tài chính</div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block mb-1">Loại hình <span class="text-red-500">*</span></label>
+                        <select id="tech-type" class="w-full border border-slate-200 rounded-lg p-2.5 text-xs text-slate-700 bg-white outline-none focus:border-blue-500 normal-case font-medium">
+                            <option value="Dịch vụ">Dịch vụ</option>
+                            <option value="Bảo trì">Bảo trì</option>
+                            <option value="Công trình">Công trình</option>
+                            <option value="Dự án">Dự án</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-1">Độ ưu tiên</label>
+                        <select id="tech-priority" class="w-full border border-slate-200 rounded-lg p-2.5 text-xs text-slate-700 bg-white outline-none focus:border-blue-500 normal-case font-medium">
+                            <option value="Cao">Cao</option>
+                            <option value="Trung bình" selected>Trung bình</option>
+                            <option value="Thấp">Thấp</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-1">Chi phí dự kiến</label>
+                        <input id="tech-fee" type="text" placeholder="Ví dụ: 500.000..." class="w-full border border-slate-200 rounded-lg p-2.5 text-xs outline-none focus:border-blue-500 font-mono font-bold text-emerald-600 normal-case bg-white">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Thời hạn (Deadline)</label>
+                        <input id="tech-deadline" type="datetime-local" class="w-full border border-slate-200 rounded-lg p-2 text-xs text-slate-800 outline-none focus:border-blue-500 font-medium font-mono bg-white">
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3 pt-1">
+                <div class="text-[11px] font-extrabold text-blue-600 border-b pb-1 flex items-center gap-1"><i class="fa fa-users"></i> Điều phối nhân sự tiếp nhận</div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block mb-1">Người điều phối tạo phiếu</label>
+                        <input id="tech-author" type="text" placeholder="Tên điều phối viên..." class="w-full border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 normal-case font-medium bg-white">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Phụ trách chính <span class="text-red-500">*</span></label>
+                        <input id="tech-main-staff" type="text" list="staff-list" placeholder="🔍 Chọn người xử lý chính..." class="w-full border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 normal-case font-medium bg-white">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Nhân viên hỗ trợ đi cùng</label>
+                        <input id="tech-sub-staff" type="text" list="staff-list" placeholder="🔍 Chọn người đi cùng hỗ trợ..." class="w-full border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 normal-case font-medium bg-white">
+                    </div>
+                    <datalist id="staff-list"></datalist>
+                </div>
+            </div>
+
+            <div class="space-y-3 pt-1">
+                <div class="text-[11px] font-extrabold text-blue-600 border-b pb-1 flex items-center gap-1"><i class="fa fa-file-invoice"></i> Nội dung & Ghi chú vật tư</div>
+                <div class="space-y-3 normal-case font-medium text-slate-700">
+                    <div>
+                        <label class="block mb-1 uppercase font-bold text-[11px] tracking-wide text-slate-400">Nội dung công việc chi tiết <span class="text-red-500">*</span></label>
+                        <textarea id="tech-content-detail" rows="2" placeholder="Ví dụ: Cấu hình thiết bị mạng, kiểm tra tín hiệu Camera, lắp đặt hệ thống khóa thông minh..." class="w-full border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 leading-relaxed bg-white"></textarea>
+                    </div>
+                    <div>
+                        <label class="block mb-1 uppercase font-bold text-[11px] tracking-wide text-slate-400">Ghi chú / Vật tư kỹ thuật mang theo</label>
+                        <textarea id="tech-notes" rows="2" placeholder="Ghi chú thêm về linh kiện thiết bị hoặc thỏa thuận riêng với chủ nhà..." class="w-full border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 leading-relaxed bg-white"></textarea>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="bg-slate-50 px-6 py-3.5 border-t flex justify-end gap-2.5 text-xs font-bold font-mono">
+            <button type="button" id="btn-cancel-tech-task" class="px-4 py-2.5 text-slate-500 hover:bg-slate-200 rounded-xl transition active:scale-95">HỦY BỎ</button>
+            <button type="button" id="btn-add-tech-task" class="px-5 py-2.5 text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition shadow-sm shadow-blue-500/10 active:scale-95">LƯU PHIẾU VIỆC</button>
+        </div>
+    </div>
+</div>
+  </div>
+    </main>
+</div>
+
+<script type="module" src="admin-logic.js"></script>
+</body>
+</html>
