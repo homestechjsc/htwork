@@ -2,7 +2,7 @@
   "name": "HomesTech Field Operations",
   "short_name": "HT Work",
   "description": "Hệ thống quản lý điều phối kỹ thuật thực địa HomesTech",
-  "start_url": "/login.html",
+  "start_url": "./login.html",
   "display": "standalone",
   "background_color": "#090d16",
   "theme_color": "#2563eb",
