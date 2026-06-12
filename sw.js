@@ -1,10 +1,8 @@
-const CACHE_NAME = 'homestech-v1';
+const CACHE_NAME = 'homestech-v2'; // Đổi v1 thành v2 để trình duyệt nhận biết có cập nhật mới
 const ASSETS_TO_CACHE = [
-  '/login.html',
-  '/nhanvien.html',
-  '/nhanvien-logic.js',
-  'https://cdn.tailwindcss.com',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css'
+  './login.html',
+  './nhanvien.html',
+  './nhanvien-logic.js'
 ];
 
 // Cài đặt và cache các tài nguyên tĩnh
