@@ -6,7 +6,7 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <link rel="apple-touch-icon" href="https://homestechjsc.vn/wp-content/uploads/2026/06/logo-HTWork.png">
     <title>HomesTech ERP - Field Operations</title>
@@ -54,20 +54,18 @@
             --erp-subtext: #94a3b8;
             --erp-input: #090d16;
         }
-        /* 👉 BỔ SUNG KHÔNG GIAN ĐỆM AN TOÀN CHO TAI THỎ / ĐỒNG HỒ ĐIỆN THOẠI */
-header {
-    padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
-}
 
         body { 
             -webkit-tap-highlight-color: transparent; 
             font-family: 'Inter', sans-serif;
+            /* 👉 SỬA ĐỔI QUAN TRỌNG: Thiết lập cỡ chữ gốc 14px và kích hoạt tính năng tự bóc tách kích thước chữ của iOS/Android chống bị teo nhỏ */
+            font-size: 14px; 
+            -webkit-text-size-adjust: 100%;
         }
         .app-panel { display: none; }
         .app-panel.active { display: flex; flex-direction: column; animation: erpSmoothUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes erpSmoothUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { display: none; }
-        
     </style>
 </head>
 <body class="bg-erp-bg text-erp-text flex justify-center min-h-screen transition-colors duration-200">
@@ -155,61 +153,66 @@ header {
             </div>
 
             <div id="panel-tangca" class="app-panel space-y-4">
-                <div class="bg-erp-card border border-erp-border p-5 rounded-2xl space-y-4 shadow-sm transition-colors duration-200">
-                    <div class="border-b border-erp-border pb-2.5">
-                        <h3 class="text-xs font-bold uppercase tracking-wider flex items-center gap-2 text-purple-600 dark:text-purple-400 font-mono"><i class="fa fa-user-clock text-base"></i> Nhật ký tính công tăng ca</h3>
-                        <p class="text-[10px] text-erp-subtext mt-1 leading-relaxed">Hệ thống theo dõi tự động các giờ làm việc ngoài giờ thực địa của nhân viên kỹ thuật.</p>
-                    </div>
-                    <div class="rounded-xl bg-purple-500/5 border border-purple-500/10 p-4 text-center">
-                        <i class="fa fa-hourglass-half text-purple-500 text-lg mb-2 block animate-pulse"></i>
-                        <span class="text-xs font-medium text-erp-text">Tính năng kiểm toán giờ tăng ca đang hoạt động đồng bộ tự động khi bạn nhấn nút "TĂNG CA" trong lệnh việc cụ thể.</span>
-                    </div>
-                </div>
+    <div class="bg-erp-card border border-erp-border p-5 rounded-2xl space-y-4 shadow-sm transition-colors duration-200">
+        <div class="border-b border-erp-border pb-2.5">
+            <h3 class="text-xs font-bold uppercase tracking-wider flex items-center gap-2 text-purple-600 dark:text-purple-400 font-mono"><i class="fa fa-user-clock text-base"></i> Nhật ký tính công tăng ca</h3>
+            <p class="text-[10px] text-erp-subtext mt-1 leading-relaxed">Dưới đây là các công việc bạn đã thực hiện tăng ca.</p>
+        </div>
+        
+        <div id="ot-list-container" class="space-y-3">
             </div>
+    </div>
+</div>
 
             <div id="panel-dexuat" class="app-panel space-y-4">
-                <div class="flex justify-between items-center bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800/80 p-3 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
-                    <div class="space-y-0.5">
-                        <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider font-mono">Cung ứng thiết bị</span>
-                        <div class="text-[12px] font-bold text-slate-800 dark:text-white">Đề xuất vật tư công việc</div>
-                    </div>
-                    <button id="btn-toggle-prop-form" class="bg-blue-600 text-white font-mono font-bold text-[11px] px-3.5 py-2 rounded-xl active:scale-95 transition-all shadow-sm shadow-blue-500/10 flex items-center gap-1">
-                        <i class="fa fa-plus-circle"></i> Tạo đề xuất
-                    </button>
-                </div>
-                
-                <div id="nv-proposal-form" class="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800/80 p-4 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.03)] space-y-3.5 transition-colors duration-200 hidden">
-                    <div class="border-b border-slate-100 dark:border-slate-800 pb-2.5 flex justify-between items-center">
-                        <div>
-                            <h3 class="text-xs font-bold uppercase tracking-wider flex items-center gap-2 text-blue-600 dark:text-blue-400 font-mono"><i class="fa fa-file-shield text-sm"></i> Nội dung cấp phát</h3>
-                        </div>
-                        <span class="text-[9px] bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded font-bold font-mono">Phiếu mới</span>
-                    </div>
-                    
-                    <div class="space-y-3 text-slate-800 dark:text-slate-100">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 font-mono">Mã lệnh việc gán kèm (Mã CV)</label>
-                            <input id="proposal-task-id" type="text" placeholder="Ví dụ: CV0001 (Nếu có)..." class="w-full bg-erp-input border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold tracking-wider text-blue-600 dark:text-blue-400 outline-none focus:border-blue-500 transition">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 font-mono">Danh mục thiết bị yêu cầu cấp phát *</label>
-                            <textarea id="proposal-content" rows="2" placeholder="Ví dụ: 02 Switch POE Dahua 4 Cổng, 01 cuộn dây mạng AMP Cat5e..." class="w-full bg-erp-input border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs outline-none leading-relaxed focus:border-blue-500 transition font-medium placeholder-slate-400"></textarea>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-2 font-mono text-[11px] font-bold pt-0.5">
-                        <button id="btn-cancel-proposal" type="button" class="w-1/3 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-xl py-2.5 transition active:scale-95 border border-slate-200/40 dark:border-slate-700/60">ĐÓNG</button>
-                        <button id="btn-submit-proposal" type="button" class="w-2/3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl py-2.5 shadow-md shadow-blue-500/10 transition active:scale-95">GỬI DUYỆT</button>
-                    </div>
-                </div>
+    <div class="flex justify-between items-center bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800/80 p-3 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+        <div class="space-y-0.5">
+            <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider font-mono">Trung tâm yêu cầu</span>
+            <div class="text-[12px] font-bold text-slate-800 dark:text-white">Đề xuất đa nhiệm</div>
+        </div>
+        <button id="btn-toggle-prop-form" class="bg-blue-600 text-white font-mono font-bold text-[11px] px-3.5 py-2 rounded-xl active:scale-95 transition-all shadow-sm flex items-center gap-1">
+            <i class="fa fa-plus-circle"></i> Tạo đề xuất
+        </button>
+    </div>
+    
+    <div id="nv-proposal-form" class="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800/80 p-4 rounded-2xl hidden space-y-3.5 transition-colors duration-200">
+        <div>
+            <label class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Loại đề xuất *</label>
+            <select id="proposal-type" class="w-full bg-slate-50 dark:bg-[#090d16] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs outline-none text-slate-800 dark:text-slate-200">
+                <option value="Vật tư">📦 Đề xuất Vật tư</option>
+                <option value="Xăng xe">⛽ Đề xuất Xăng xe</option>
+                <option value="Tạm ứng">💵 Đề xuất Tạm ứng</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Mã lệnh việc (Mã CV)</label>
+            <input list="task-list" id="proposal-task-id" placeholder="Gõ tìm mã CV hoặc tên khách..." 
+                   class="w-full bg-slate-50 dark:bg-[#090d16] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold text-blue-600 dark:text-blue-400 outline-none">
+            <datalist id="task-list"></datalist>
+        </div>
+        
+        <div id="area-prop-vattu" class="space-y-3">
+            <label class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Chi tiết vật tư *</label>
+            <textarea id="proposal-content" rows="2" class="w-full bg-slate-50 dark:bg-[#090d16] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs outline-none text-slate-800 dark:text-slate-200"></textarea>
+        </div>
 
-                <div class="space-y-2">
-                    <div class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase font-mono tracking-wider px-1 flex items-center gap-1.5">
-                        <i class="fa fa-clock-rotate-left"></i> Nhật ký trạng thái phê duyệt đơn
-                    </div>
-                    <div id="nvProposalListBox" class="space-y-2.5 max-h-[55vh] overflow-y-auto pr-0.5"></div>
-                </div>
+        <div id="area-prop-xangxe" class="space-y-3 hidden">
+            <div class="grid grid-cols-2 gap-2">
+                <div><label class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">KM đi *</label><input id="proposal-km-start" type="number" class="w-full bg-slate-50 dark:bg-[#090d16] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs text-slate-800 dark:text-slate-200"></div>
+                <div><label class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">KM về *</label><input id="proposal-km-end" type="number" class="w-full bg-slate-50 dark:bg-[#090d16] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs text-slate-800 dark:text-slate-200"></div>
             </div>
+            <input id="proposal-km-total" type="text" readonly value="0 KM" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs font-black text-center text-blue-600 dark:text-blue-400">
+        </div>
+
+        <div id="area-prop-tamung" class="space-y-3 hidden">
+            <div><label class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Số tiền tạm ứng *</label><input id="proposal-advance-amount" type="number" class="w-full bg-slate-50 dark:bg-[#090d16] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs text-slate-800 dark:text-slate-200"></div>
+            <div><label class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Lý do *</label><input id="proposal-advance-reason" type="text" class="w-full bg-slate-50 dark:bg-[#090d16] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs text-slate-800 dark:text-slate-200"></div>
+        </div>
+        
+        <button id="btn-submit-proposal" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl text-xs">GỬI DUYỆT</button>
+    </div>
+    <div id="nvProposalListBox" class="space-y-2.5"></div>
+</div>
 
             <div id="panel-thongtin" class="app-panel space-y-4">
                 <div class="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800/80 p-6 rounded-2xl text-center space-y-4 shadow-[0_4px_12px_rgba(0,0,0,0.03)] transition-colors duration-200">
@@ -305,6 +308,29 @@ header {
                 <input type="hidden" id="complete-task-id"><input type="hidden" id="complete-sub-id" value=""><div><label class="block text-[10px] text-erp-subtext font-bold mb-1.5 uppercase">Hình thức xử lý chi phí *</label><select id="complete-fee-type" class="w-full bg-erp-input border border-erp-border rounded-xl p-2.5 text-xs outline-none font-semibold text-erp-text"><option value="Thu phí">Thu phí dịch vụ tại chỗ</option><option value="Hỗ trợ">Hỗ trợ kỹ thuật (Miễn phí)</option><option value="Bảo hành">Hạng mục bảo hành nội bộ</option></select></div><div id="complete-amount-area"><label class="block text-[10px] text-erp-subtext font-bold mb-1.5 uppercase">Số thu thực tế thực địa (VNĐ) *</label><div class="relative"><input id="complete-amount-input" type="number" placeholder="0" class="w-full bg-erp-input border border-erp-border rounded-xl py-2.5 pl-3 pr-12 text-sm text-emerald-600 dark:text-emerald-400 font-mono font-bold"><span class="absolute right-3 top-2.5 text-[10px] font-black text-slate-400 font-mono">VND</span></div></div><div class="flex gap-2 justify-end font-mono text-xs pt-1"><button onclick="document.getElementById('popup-complete').classList.add('hidden')" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-700 text-erp-subtext dark:text-slate-200 rounded-lg">HỦY</button><button id="btn-confirm-complete" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold">HOÀN TẤT</button></div>
             </div>
         </div>
+       <div id="popup-ot" class="fixed inset-0 bg-slate-900/40 dark:bg-black/60 flex items-center justify-center p-5 z-50 hidden backdrop-blur-sm">
+    <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 p-5 rounded-2xl w-full max-w-xs space-y-4 shadow-2xl">
+        <h4 class="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase font-mono border-b border-slate-100 dark:border-slate-800 pb-2">
+            Lý do tăng ca *
+        </h4>
+        
+        <input type="hidden" id="ot-task-id">
+        
+        <input id="ot-reason-input" type="text" placeholder="Nhập lý do..." 
+               class="w-full bg-slate-50 dark:bg-[#090d16] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs outline-none text-slate-800 dark:text-slate-200 focus:border-purple-500 transition">
+        
+        <div class="flex gap-2 justify-end pt-1">
+            <button onclick="document.getElementById('popup-ot').classList.add('hidden')" 
+                    class="px-3.5 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 rounded-lg text-xs font-bold transition-colors">
+                HỦY
+            </button>
+            <button id="btn-confirm-ot" 
+                    class="px-4 py-2 bg-purple-600 text-white rounded-lg text-xs font-bold hover:bg-purple-700 transition-all">
+                XÁC NHẬN
+            </button>
+        </div>
+    </div>
+</div>
     </div>
 
 <script type="module" src="nhanvien-logic.js"></script>
