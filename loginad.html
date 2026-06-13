@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://homestechjsc.vn/wp-content/uploads/2026/06/logo-HTWork.png">
+    
+    <title>HomesTech ERP - Đăng Nhập Ban Điều Hành</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent; 
+        }
+        /* Fix khoảng đệm an toàn cho thanh đồng hồ điện thoại */
+        .safe-padding {
+            padding-top: calc(env(safe-area-inset-top, 0px) + 24px) !important;
+        }
+    </style>
+</head>
+<body class="bg-[#090d16] text-slate-100 flex justify-center min-h-screen">
+
+    <div class="w-full max-w-md flex flex-col justify-between p-6 min-h-screen safe-padding">
+        
+        <div class="text-center space-y-3 pt-4">
+            <img src="https://homestechjsc.vn/wp-content/uploads/2026/06/logo-HTWork.png" alt="Logo HomesTech" class="w-20 h-20 mx-auto object-contain bg-slate-900/40 p-2.5 rounded-2xl border border-slate-800/60 shadow-xl">
+            <div>
+                <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest font-mono block">Hệ thống hoạch định ERP</span>
+                <h1 class="text-xl font-bold tracking-tight text-white mt-1">Ban Điều Hành Cao Cấp</h1>
+                <p class="text-xs text-slate-500 mt-1">Dành riêng cho Admin, Trưởng phòng & Trưởng nhóm</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900/50 border border-slate-800/80 p-5 rounded-2xl shadow-2xl space-y-4 my-auto">
+            <div class="space-y-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">
+                <div>
+                    <label class="block mb-1.5">Mã tài khoản (Username) *</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-3 text-slate-500 text-xs"><i class="fa fa-user-tie"></i></span>
+                        <input id="login-user" type="text" placeholder="Nhập tên tài khoản quản trị..." class="w-full bg-[#090d16] border border-slate-800/80 rounded-xl py-3 pl-9 pr-4 text-xs text-slate-200 outline-none focus:border-indigo-500 normal-case font-sans font-medium transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block mb-1.5">Mật khẩu bảo mật *</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-3 text-slate-500 text-xs"><i class="fa fa-shield-halved"></i></span>
+                        <input id="login-pwd" type="password" placeholder="••••••••" class="w-full bg-[#090d16] border border-slate-800/80 rounded-xl py-3 pl-9 pr-4 text-xs text-slate-200 outline-none focus:border-indigo-500 normal-case font-sans font-medium transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-login-admin" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:opacity-95 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider font-mono shadow-lg shadow-indigo-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
+                <i class="fa fa-right-to-bracket text-xs"></i> XÁC THỰC QUẢN TRỊ
+            </button>
+        </div>
+
+        <div class="text-center pt-4">
+            <p class="text-[10px] text-slate-600 font-mono">© 2026 HomesTech JSC. All Rights Reserved.</p>
+            <a href="login.html" class="inline-block text-[10px] text-indigo-400 hover:underline mt-1 font-medium">Bạn là nhân viên kỹ thuật? Đăng nhập tại đây</a>
+        </div>
+
+    </div>
+
+<script type="module" src="loginad-logic.js"></script>
+</body>
+</html>
