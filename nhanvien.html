@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="https://homestechjsc.vn/wp-content/uploads/2026/06/logo-HTWork.png">
     <title>HomesTech ERP - Field Operations</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link re1l="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -91,13 +91,23 @@ body, html {
     padding: 8px;
     border-radius: 50%;
 }
+        /* --- CHÈN THÊM ĐOẠN NÀY VÀO CUỐI KHỐI STYLE CỦA BẠN --- */
+header {
+    /* Tự động cộng thêm khoảng cách tai thỏ / đồng hồ của iOS và Android */
+    padding-top: calc(16px + env(safe-area-inset-top)) !important;
+}
+
+/* Đảm bảo khối danh sách không bị che khuất bởi thanh menu điều hướng dưới cùng */
+#nvTaskBox {
+    padding-bottom: 30px;
+}
     </style>
 </head>
 <body class="bg-erp-bg text-erp-text flex justify-center min-h-screen transition-colors duration-200">
 
     <div class="w-full bg-erp-panel flex flex-col justify-between min-h-screen relative pb-[68px] transition-colors duration-200">
         
-        <header class="px-5 py-4 bg-erp-panel border-b border-erp-border flex justify-between items-center sticky top-0 z-30 transition-colors duration-200">
+        <header class="px-5 pb-4 bg-erp-panel border-b border-erp-border flex justify-between items-center sticky top-0 z-30 transition-colors duration-200">
             <div class="flex items-center gap-3">
                 <div class="w-1.5 h-6 bg-blue-600 rounded-full shadow-[0_0_8px_rgba(37,99,235,0.4)]"></div>
                 <div>
