@@ -6,7 +6,7 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
     <link rel="apple-touch-icon" href="https://homestechjsc.vn/wp-content/uploads/2026/06/logo-HTWork.png">
     <title>HomesTech ERP - Field Operations</title>
@@ -54,6 +54,10 @@
             --erp-subtext: #94a3b8;
             --erp-input: #090d16;
         }
+        /* 👉 BỔ SUNG KHÔNG GIAN ĐỆM AN TOÀN CHO TAI THỎ / ĐỒNG HỒ ĐIỆN THOẠI */
+header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+}
 
         body { 
             -webkit-tap-highlight-color: transparent; 
@@ -63,6 +67,7 @@
         .app-panel.active { display: flex; flex-direction: column; animation: erpSmoothUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes erpSmoothUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { display: none; }
+        
     </style>
 </head>
 <body class="bg-erp-bg text-erp-text flex justify-center min-h-screen transition-colors duration-200">
