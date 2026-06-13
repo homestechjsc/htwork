@@ -14,6 +14,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const rtdb = getDatabase(app);
+const GEO_OPTIONS = {
+    enableHighAccuracy: true, 
+    timeout: 15000, 
+    maximumAge: 0 // ÉP LẤY GPS MỚI, KHÔNG DÙNG DỮ LIỆU CŨ (CACHE)
+};
 
 const LOGGED_NAME = localStorage.getItem('logged_staff_name');
 if (!LOGGED_NAME) { alert("Vui lòng đăng nhập!"); window.location.href = "login.html"; }
@@ -136,7 +141,7 @@ if (btnNvSaveTask) {
                 techId: autoId, createdAt: dateOnlyPart,
                 customer: customer, phone: customerPhone, address: address, type: "Dịch vụ",
                 taskContent: type || "Xử lý kỹ thuật phát sinh ca trực", priority: "Trung bình",
-                fee: "Tính theo cấu trúc việc", mainStaff: TEN_NHAN_VIEN_HIEN_TAI, subStaff: "Không có",
+                fee: "Chờ nghiệm thu", mainStaff: TEN_NHAN_VIEN_HIEN_TAI, subStaff: "Không có",
                 deadline: "Trong ngày", author: TEN_NHAN_VIEN_HIEN_TAI, status: "pending", isSelfCreated: true
             });
             if (nvCreateForm) nvCreateForm.classList.add('hidden'); resetNvCreateForm(); alert("Khởi tạo thành công!");
@@ -151,6 +156,17 @@ function renderTasks() {
     if (!nvTaskBox) return;
     nvTaskBox.innerHTML = "";
     let hasTask = false;
+    const taskList = document.getElementById('task-list');
+    if (taskList) {
+        taskList.innerHTML = "";
+        allTasksCache.forEach(task => {
+            const option = document.createElement('option');
+            // Nhân viên có thể gõ mã hoặc tên khách hàng để tìm
+            option.value = task.techId; 
+            option.textContent = `${task.customer}`; // Hiển thị tên khách hàng để dễ nhận biết
+            taskList.appendChild(option);
+        });
+    }
 
     // ĐỌC GIÁ TRỊ TỪ 2 Ô INPUT DATE TRÊN GIAO DIỆN
     const filterStartDate = document.getElementById('filter-nv-start-date')?.value || "";
@@ -196,16 +212,27 @@ function renderTasks() {
         if(task.status === 'pending' || task.status === 'paused') {
             borderIndicator = "border-l-[4px] border-l-amber-500"; statusText = task.status === 'paused' ? "Tạm ngưng" : "Chờ làm";
             statusColor = "text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-950/20 dark:border-amber-900/50";
-            actionButtonsHtml = `<button class="btn-main-start w-full mt-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 rounded-xl text-xs font-mono tracking-wider shadow-md">BẮT ĐẦU THỰC HIỆN CÔNG VIỆC</button>`;
+            actionButtonsHtml = `<button class="btn-main-start w-full mt-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 rounded-xl text-xs font-mono tracking-wider shadow-md flex items-center justify-center gap-2">
+    <i class="fa-solid fa-person-running"></i>
+    BẮT ĐẦU CÔNG VIỆC
+</button>`;
         } else if (task.status === 'in-progress') {
             borderIndicator = "border-l-[4px] border-l-blue-600"; statusText = "Đang làm";
             statusColor = "text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-950/20 dark:border-blue-900/50";
             actionButtonsHtml = `
                 <div class="grid grid-cols-2 gap-2.5 mt-3 font-mono text-[11px]">
-                    <button class="btn-main-pause bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl border border-slate-200 dark:border-slate-700">TẠM NGƯNG</button>
-                    <button class="btn-main-ot-start bg-purple-50 hover:bg-purple-100 text-purple-600 dark:bg-purple-950/30 dark:text-purple-400 font-bold py-2.5 rounded-xl border border-purple-200 dark:border-purple-900/50"><i class="fa fa-moon mr-1"></i>TĂNG CA</button>
+                    <button class="btn-main-pause bg-red-800 hover:bg-red-700 text-red-100 font-bold py-2.5 rounded-xl border border-red-700 flex items-center justify-center gap-2">
+    <i class="fas fa-pause"></i>
+    TẠM NGƯNG
+</button>
+                    <button class="btn-main-ot-start bg-purple-50 hover:bg-purple-100 text-purple-600 dark:bg-purple-950/30 dark:text-purple-400 font-bold py-2.5 rounded-xl border border-purple-200 dark:border-purple-900/50">
+    <i class="fa fa-clock mr-1"></i>TĂNG CA
+</button>
                 </div>
-                <button class="btn-main-complete w-full mt-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3 rounded-xl text-xs font-mono tracking-wider shadow-md">HOÀN THÀNH</button>
+                <button class="btn-main-complete w-full mt-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3 rounded-xl text-xs font-mono tracking-wider shadow-md flex items-center justify-center gap-2">
+    <i class="fa fa-check-circle"></i>
+    HOÀN THÀNH
+</button>
             `;
         } else if (task.status === 'overtime-in') {
             borderIndicator = "border-l-[4px] border-l-purple-500"; statusText = "Tăng ca";
@@ -308,28 +335,59 @@ function renderTasks() {
     if (!hasTask) { 
         nvTaskBox.innerHTML = `<div class="text-center py-20 text-slate-400 dark:text-slate-600 text-xs font-mono"><i class="fa fa-folder-open text-2xl mb-3 block text-slate-300"></i>KHÔNG CÓ BẢN GHI LỆNH VIỆC</div>`; 
     }
+    renderOvertimeList();
 }
 
 async function handleMainAction(id, type, btnEl) {
-    if(btnEl) btnEl.disabled = true;
-    if (navigator.geolocation) {
+    if (type === 'ot-start') {
+        // Mở popup thay vì cập nhật Firebase ngay
+        document.getElementById('ot-task-id').value = id; 
+        document.getElementById('ot-reason-input').value = ""; 
+        document.getElementById('popup-ot').classList.remove('hidden');
+    } else {
+        // Kiểm tra xem trình duyệt có hỗ trợ GPS không
+        if (!navigator.geolocation) {
+            return alert("Trình duyệt của bạn không hỗ trợ định vị GPS!");
+        }
+
+        if(btnEl) {
+            btnEl.disabled = true;
+            btnEl.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ĐANG LẤY VỊ TRÍ...`;
+        }
+
         navigator.geolocation.getCurrentPosition(async (pos) => {
-            const updates = {};
-            if(type === 'start') {
-                updates[`tech_tasks/${id}/status`] = "in-progress"; updates[`tech_tasks/${id}/timeStart`] = getVietnamTimeString();
-                updates[`tech_tasks/${id}/locInLat`] = pos.coords.latitude; updates[`tech_tasks/${id}/locInLng`] = pos.coords.longitude;
-            } else if(type === 'ot-start') {
-                updates[`tech_tasks/${id}/status`] = "overtime-in"; updates[`tech_tasks/${id}/timeOTStart`] = getVietnamTimeString();
-                updates[`tech_tasks/${id}/locOTInLat`] = pos.coords.latitude; updates[`tech_tasks/${id}/locOTInLng`] = pos.coords.longitude;
-            } else if(type === 'ot-end') {
-                updates[`tech_tasks/${id}/status`] = "in-progress"; updates[`tech_tasks/${id}/timeOTEnd`] = getVietnamTimeString();
-                updates[`tech_tasks/${id}/locOTOutLat`] = pos.coords.latitude; updates[`tech_tasks/${id}/locOTOutLng`] = pos.coords.longitude;
+            try {
+                const updates = {};
+                if(type === 'start') {
+                    updates[`tech_tasks/${id}/status`] = "in-progress"; 
+                    updates[`tech_tasks/${id}/timeStart`] = getVietnamTimeString();
+                    updates[`tech_tasks/${id}/locInLat`] = pos.coords.latitude; 
+                    updates[`tech_tasks/${id}/locInLng`] = pos.coords.longitude;
+                } else if(type === 'ot-end') {
+                    updates[`tech_tasks/${id}/status`] = "in-progress"; 
+                    updates[`tech_tasks/${id}/timeOTEnd`] = getVietnamTimeString();
+                    updates[`tech_tasks/${id}/locOTOutLat`] = pos.coords.latitude; 
+                    updates[`tech_tasks/${id}/locOTOutLng`] = pos.coords.longitude;
+                }
+                await update(ref(rtdb), updates);
+                alert("Cập nhật thành công!");
+            } catch (error) {
+                alert("Lỗi lưu dữ liệu: " + error.message);
+            } finally {
+                if(btnEl) {
+                    btnEl.disabled = false;
+                    btnEl.innerHTML = type === 'start' ? `<i class="fa-solid fa-person-running"></i> BẮT ĐẦU CÔNG VIỆC` : `RA TĂNG CA`;
+                }
             }
-            await update(ref(rtdb), updates);
-        }, () => { alert("Lỗi GPS!"); if(btnEl) btnEl.disabled = false; });
+        }, (err) => {
+            alert("Không thể lấy GPS: " + err.message + ". Vui lòng bật định vị trên thiết bị.");
+            if(btnEl) {
+                btnEl.disabled = false;
+                btnEl.innerHTML = type === 'start' ? `<i class="fa-solid fa-person-running"></i> BẮT ĐẦU CÔNG VIỆC` : `RA TĂNG CA`;
+            }
+        }, GEO_OPTIONS);
     }
 }
-
 // =========================================================================
 // LẮNG NGHE LỆNH VIỆC VÀ PHÂN BỔ THỐNG KÊ ĐA NHIỆM CHUẨN ROLE
 // =========================================================================
@@ -393,6 +451,7 @@ document.getElementById('btn-confirm-pause').addEventListener('click', async () 
     if(!reason) return alert("Nhập lý do!");
     
     if (navigator.geolocation) {
+        // Truyền GEO_OPTIONS vào tham số thứ 3
         navigator.geolocation.getCurrentPosition(async (pos) => {
             const updates = {};
             updates[`tech_tasks/${taskId}/status`] = "paused";
@@ -400,19 +459,26 @@ document.getElementById('btn-confirm-pause').addEventListener('click', async () 
             updates[`tech_tasks/${taskId}/timePause`] = getVietnamTimeString();
             updates[`tech_tasks/${taskId}/locPauseLat`] = pos.coords.latitude;
             updates[`tech_tasks/${taskId}/locPauseLng`] = pos.coords.longitude;
+            
             await update(ref(rtdb), updates); 
             document.getElementById('popup-pause').classList.add('hidden');
-        });
+            alert("Đã cập nhật trạng thái tạm ngưng!");
+        }, (err) => {
+            alert("Lỗi lấy vị trí: " + err.message + ". Vui lòng bật GPS!");
+        }, GEO_OPTIONS);
+    } else {
+        alert("Trình duyệt không hỗ trợ định vị!");
     }
 });
-
 document.getElementById('btn-confirm-complete').addEventListener('click', () => {
     const taskId = document.getElementById('complete-task-id').value;
     const feeType = document.getElementById('complete-fee-type').value;
     const amount = document.getElementById('complete-amount-input').value.trim();
+    
     if(feeType === 'Thu phí' && !amount) return alert("Vui lòng nhập tiền!");
     
     if (navigator.geolocation) {
+        // Truyền GEO_OPTIONS vào tham số thứ 3
         navigator.geolocation.getCurrentPosition(async (pos) => {
             const updates = {};
             updates[`tech_tasks/${taskId}/status`] = "completed";
@@ -421,135 +487,195 @@ document.getElementById('btn-confirm-complete').addEventListener('click', () => 
             updates[`tech_tasks/${taskId}/locOutLng`] = pos.coords.longitude;
             updates[`tech_tasks/${taskId}/actualFeeType`] = feeType;
             updates[`tech_tasks/${taskId}/actualFeeAmount`] = feeType === 'Thu phí' ? amount : 0;
+            
             await update(ref(rtdb), updates); 
             document.getElementById('popup-complete').classList.add('hidden');
-        });
+            alert("Công việc đã hoàn thành!");
+        }, (err) => {
+            alert("Lỗi lấy vị trí: " + err.message + ". Vui lòng bật GPS!");
+        }, GEO_OPTIONS);
+    } else {
+        alert("Trình duyệt không hỗ trợ định vị!");
     }
 });
 
 // =========================================================================
 // PHẦN 6: ĐỒNG BỘ ĐỀ XUẤT VÀ THEO DÕI TRẠNG THÁI REAL-TIME
 // =========================================================================
+// =========================================================================
+// PHẦN 6: QUẢN LÝ QUY TRÌNH ĐỀ XUẤT (VẬT TƯ, XĂNG XE, TẠM ỨNG)
+// =========================================================================
 const btnTogglePropForm = document.getElementById('btn-toggle-prop-form');
 const nvProposalForm = document.getElementById('nv-proposal-form');
 const btnCancelProposal = document.getElementById('btn-cancel-proposal');
 const btnSubmitProposal = document.getElementById('btn-submit-proposal');
 const nvProposalListBox = document.getElementById('nvProposalListBox');
+const proposalTypeSelect = document.getElementById('proposal-type');
 
-if (btnTogglePropForm && nvProposalForm) {
-    btnTogglePropForm.addEventListener('click', () => {
-        const isHidden = nvProposalForm.classList.contains('hidden');
-        if (isHidden) {
-            nvProposalForm.classList.remove('hidden');
-            nvProposalForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            btnTogglePropForm.innerHTML = `<i class="fa fa-minus-circle"></i> Thu gọn`;
-            btnTogglePropForm.className = "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono font-bold text-[11px] px-3.5 py-2 rounded-xl active:scale-95 transition-all border border-slate-200/60 dark:border-slate-700";
-        } else {
-            nvProposalForm.classList.add('hidden');
-            btnTogglePropForm.innerHTML = `<i class="fa fa-plus-circle"></i> Tạo đề xuất`;
-            btnTogglePropForm.className = "bg-blue-600 text-white font-mono font-bold text-[11px] px-3.5 py-2 rounded-xl active:scale-95 transition-all shadow-sm shadow-blue-500/10 flex items-center gap-1";
-            clearProposalFormInputs();
-        }
-    });
-}
+// 1. Ẩn/Hiện form
+btnTogglePropForm?.addEventListener('click', () => nvProposalForm?.classList.toggle('hidden'));
+btnCancelProposal?.addEventListener('click', () => {
+    nvProposalForm?.classList.add('hidden');
+    clearProposalFormInputs();
+});
 
-if (btnCancelProposal && btnTogglePropForm) {
-    btnCancelProposal.addEventListener('click', () => {
-        if (nvProposalForm) nvProposalForm.classList.add('hidden');
-        btnTogglePropForm.innerHTML = `<i class="fa fa-plus-circle"></i> Tạo đề xuất`;
-        btnTogglePropForm.className = "bg-blue-600 text-white font-mono font-bold text-[11px] px-3.5 py-2 rounded-xl active:scale-95 transition-all shadow-sm shadow-blue-500/10 flex items-center gap-1";
+// 2. Ẩn/Hiện các vùng nhập liệu tùy theo loại đề xuất
+proposalTypeSelect?.addEventListener('change', (e) => {
+    const type = e.target.value;
+    document.getElementById('area-prop-vattu')?.classList.toggle('hidden', type !== "Vật tư");
+    document.getElementById('area-prop-xangxe')?.classList.toggle('hidden', type !== "Xăng xe");
+    document.getElementById('area-prop-tamung')?.classList.toggle('hidden', type !== "Tạm ứng");
+});
+
+// 3. Tự động tính tổng KM
+const kmStart = document.getElementById('proposal-km-start');
+const kmEnd = document.getElementById('proposal-km-end');
+const kmTotal = document.getElementById('proposal-km-total');
+
+[kmStart, kmEnd].forEach(el => el?.addEventListener('input', () => {
+    const total = (parseFloat(kmEnd.value) || 0) - (parseFloat(kmStart.value) || 0);
+    if (kmTotal) kmTotal.value = (total > 0 ? total : 0) + " KM";
+}));
+
+// 4. Hàm gửi đề xuất
+btnSubmitProposal?.addEventListener('click', async () => {
+    const type = proposalTypeSelect.value;
+    const taskId = document.getElementById('proposal-task-id').value.trim();
+    let content = "";
+
+    if (type === "Vật tư") {
+        content = `[VẬT TƯ]: ${document.getElementById('proposal-content').value}`;
+    } else if (type === "Xăng xe") {
+        content = `[XĂNG XE]: ${document.getElementById('proposal-km-total').value} (Từ: ${kmStart.value}km - Đến: ${kmEnd.value}km)`;
+    } else {
+        content = `[TẠM ỨNG]: ${document.getElementById('proposal-advance-amount').value} VNĐ - Lý do: ${document.getElementById('proposal-advance-reason').value}`;
+    }
+
+    if (!content.includes(": ")) return alert("Vui lòng điền đầy đủ nội dung!");
+
+    try {
+        await set(push(ref(rtdb, "proposals")), {
+            staffName: TEN_NHAN_VIEN_HIEN_TAI,
+            techIdRelated: taskId || "Không có",
+            content: content,
+            createdAt: getVietnamTimeString(),
+            status: "Chờ duyệt"
+        });
+        alert("Gửi đơn đề xuất thành công!");
+        nvProposalForm.classList.add('hidden');
         clearProposalFormInputs();
-    });
-}
+    } catch (e) { alert("Lỗi gửi: " + e.message); }
+});
 
 function clearProposalFormInputs() {
-    const elTaskId = document.getElementById('proposal-task-id');
-    const elContent = document.getElementById('proposal-content');
-    if (elTaskId) elTaskId.value = ""; if (elContent) elContent.value = "";
+    document.getElementById('proposal-task-id').value = "";
+    document.getElementById('proposal-content').value = "";
+    document.getElementById('proposal-km-start').value = "";
+    document.getElementById('proposal-km-end').value = "";
+    document.getElementById('proposal-km-total').value = "0 KM";
+    document.getElementById('proposal-advance-amount').value = "";
+    document.getElementById('proposal-advance-reason').value = "";
 }
 
-if (btnSubmitProposal) {
-    btnSubmitProposal.addEventListener('click', async () => { 
-        const taskInput = document.getElementById('proposal-task-id').value.trim(); 
-        const contentInput = document.getElementById('proposal-content').value.trim(); 
-        if(!contentInput) return alert("Vui lòng điền nội dung thiết bị cần đề xuất!"); 
-        try { 
-            await set(push(ref(rtdb, "proposals")), { 
-                staffName: TEN_NHAN_VIEN_HIEN_TAI, 
-                techIdRelated: taskInput || "Không có", 
-                content: contentInput, 
-                createdAt: getVietnamTimeString(), 
-                status: "Chờ duyệt" 
-            }); 
-            if (nvProposalForm) nvProposalForm.classList.add('hidden');
-            if (btnTogglePropForm) {
-                btnTogglePropForm.innerHTML = `<i class="fa fa-plus-circle"></i> Tạo đề xuất`;
-                btnTogglePropForm.className = "bg-blue-600 text-white font-mono font-bold text-[11px] px-3.5 py-2 rounded-xl active:scale-95 transition-all shadow-sm shadow-blue-500/10 flex items-center gap-1";
+function renderOvertimeList() {
+    const otContainer = document.getElementById('ot-list-container');
+    if (!otContainer) return;
+    
+    otContainer.innerHTML = "";
+    // Lọc các task có tồn tại dữ liệu tăng ca
+    const otTasks = allTasksCache.filter(t => t.timeOTStart);
+
+    if (otTasks.length === 0) {
+        otContainer.innerHTML = `<div class="text-center py-4 text-slate-400 text-xs italic">Chưa có ca tăng ca nào.</div>`;
+        return;
+    }
+
+    otTasks.reverse().forEach(task => {
+        // CÁCH TÍNH AN TOÀN: Kiểm tra dữ liệu trước khi xử lý
+        let startTime = "---";
+        let endTime = "---";
+        let duration = "Đang tính...";
+
+        if (task.timeOTStart) {
+            // Lấy giờ phút từ chuỗi (giả định chuỗi có dạng "HH:mm:ss" hoặc "DD/MM/YYYY, HH:mm:ss")
+            startTime = task.timeOTStart.includes(',') ? task.timeOTStart.split(', ')[1].substring(0, 5) : task.timeOTStart;
+        }
+        
+        if (task.timeOTEnd) {
+            endTime = task.timeOTEnd.includes(',') ? task.timeOTEnd.split(', ')[1].substring(0, 5) : task.timeOTEnd;
+            duration = calculateHours(task.timeOTStart, task.timeOTEnd);
+        }
+
+        const status = task.otStatus || "Chờ duyệt"; 
+        const statusColor = status === "Đã duyệt" ? "text-emerald-400" : "text-amber-400";
+
+        const div = document.createElement('div');
+        div.className = "p-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm text-xs space-y-2";
+        div.innerHTML = `
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-purple-400">Mã: ${task.techId}</span>
+                <span class="font-bold ${statusColor} uppercase">${status}</span>
+            </div>
+            <div class="text-slate-600 dark:text-slate-300">Khách: ${task.customer}</div>
+            <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-400 font-mono">
+                <div>BĐ: ${startTime}</div>
+                <div>KT: ${endTime}</div>
+            </div>
+            <div class="text-[11px] font-bold text-blue-400 border-t border-slate-700 pt-1 mt-1">
+                Tổng cộng: ${duration}
+            </div>
+        `;
+        otContainer.appendChild(div);
+    });
+}
+// 5. Lắng nghe danh sách đề xuất
+onValue(ref(rtdb, "proposals"), (snapshot) => {
+    if (!nvProposalListBox) return;
+    nvProposalListBox.innerHTML = "";
+    
+    if (snapshot.exists()) {
+        let proposals = [];
+        snapshot.forEach(child => {
+            const p = child.val();
+            // Lưu lại child.key vào thuộc tính firebaseKey để dùng khi xóa
+            if (p.staffName === TEN_NHAN_VIEN_HIEN_TAI) {
+                proposals.push({ ...p, firebaseKey: child.key });
             }
-            clearProposalFormInputs();
-            alert("Gửi đơn đề xuất vật tư thành công!"); 
-        } catch (e) { alert("Lỗi gửi: " + e.message); } 
-    });
-}
+        });
+        
+        proposals.reverse().forEach(p => {
+    let badgeClass = p.status === "Đã duyệt" ? "text-emerald-600 bg-emerald-500/10" : 
+                     p.status === "Từ chối" ? "text-red-500 bg-red-500/10" : "text-amber-600 bg-amber-500/10";
+    
+    // Nút xóa (Icon thùng rác)
+    const deleteBtn = p.status === "Chờ duyệt" 
+        ? `<button onclick="deleteProposal('${p.firebaseKey}')" class="text-red-500 hover:text-red-700 p-1 transition-all" title="Xóa">
+             <i class="fa fa-trash-can text-[11px]"></i>
+           </button>` 
+        : "";
 
-if (nvProposalListBox) {
-    onValue(ref(rtdb, "proposals"), (snapshot) => {
-        nvProposalListBox.innerHTML = "";
-        let hasProposal = false;
-
-        if (snapshot.exists()) {
-            let localProposals = [];
-            snapshot.forEach((childSnapshot) => {
-                const prop = childSnapshot.val();
-                if (prop.staffName === TEN_NHAN_VIEN_HIEN_TAI) {
-                    localProposals.push(prop);
-                }
-            });
-
-            localProposals.reverse();
-
-            localProposals.forEach((prop) => {
-                hasProposal = true;
-
-                let badgeClass = "text-amber-600 bg-amber-500/10 border-amber-500/20 dark:text-amber-400";
-                if (prop.status === "Đã duyệt") {
-                    badgeClass = "text-emerald-600 bg-emerald-500/10 border-emerald-500/20 dark:text-emerald-400";
-                } else if (prop.status === "Từ chối") {
-                    badgeClass = "text-red-500 bg-red-500/10 border-red-500/20 dark:text-red-400";
-                }
-
-                const dateDisplay = prop.createdAt ? prop.createdAt.split(' ')[0] : 'Hôm nay';
-
-                const propCard = document.createElement('div');
-                propCard.className = "p-3 bg-white dark:bg-[#1e293b] border border-slate-200/60 dark:border-slate-800 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.01)] flex flex-col gap-1.5 transition-all";
-                propCard.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div class="text-[10px] font-mono font-bold text-slate-400 flex items-center gap-1.5">
-                            <span class="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400"><i class="fa fa-calendar text-[9px] mr-1"></i>${dateDisplay}</span>
-                            <span>|</span>
-                            <span>Mã việc: <strong class="text-blue-600 dark:text-blue-400">${prop.techIdRelated || 'Không có'}</strong></span>
-                        </div>
-                        <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md border ${badgeClass}">
-                            ${prop.status || 'Chờ duyệt'}
-                        </span>
-                    </div>
-                    <div class="text-[11px] text-slate-600 dark:text-slate-300 font-medium leading-relaxed bg-slate-50/50 dark:bg-slate-900/40 p-2 rounded-lg border border-slate-100 dark:border-slate-800/40">
-                        ${prop.content}
-                    </div>
-                `;
-                nvProposalListBox.appendChild(propCard);
-            });
-        }
-
-        if (!hasProposal) {
-            nvProposalListBox.innerHTML = `
-                <div class="text-center py-8 text-slate-400 dark:text-slate-600 italic text-[10px] font-mono bg-white dark:bg-[#111827] border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
-                    <i class="fa fa-receipt text-lg mb-1.5 block text-slate-200 dark:text-slate-800"></i>Bạn chưa tạo đơn đề xuất vật tư nào.
-                </div>`;
-        }
-    });
-}
-
+    const div = document.createElement('div');
+    // Thay bg-white bằng bg-white dark:bg-[#111827]
+    div.className = "p-3 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm text-xs space-y-1";
+    div.innerHTML = `
+        <div class="flex justify-between items-center">
+            <span class="font-bold text-blue-600 dark:text-blue-400">Mã: ${p.techIdRelated}</span>
+            <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase ${badgeClass}">${p.status}</span>
+                ${deleteBtn}
+            </div>
+        </div>
+        <div class="text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-[#090d16] p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+            ${p.content}
+        </div>
+        <div class="text-[9px] text-slate-400 font-mono">${p.createdAt}</div>
+    `;
+            nvProposalListBox.appendChild(div);
+        });
+    } else {
+        nvProposalListBox.innerHTML = `<div class="text-center py-4 text-slate-400 text-xs italic">Chưa có đề xuất nào.</div>`;
+    }
+});
 // ĐỒNG BỘ HỒ SƠ TÀI KHOẢN CÁ NHÂN VÀ THAY ĐỔI MẬT KHẨU
 const btnTriggerPwdForm = document.getElementById('btn-trigger-pwd-form');
 const nvPasswordForm = document.getElementById('nv-password-form');
@@ -648,3 +774,68 @@ if ('serviceWorker' in navigator) {
             .catch(err => console.log('Lỗi đăng ký PWA:', err));
     });
 }
+
+
+window.deleteProposal = async (firebaseKey) => {
+    if (confirm("Bạn có chắc chắn muốn hủy đơn đề xuất này?")) {
+        try {
+            // Xóa trực tiếp trên Firebase dựa vào key đã lưu
+            await set(ref(rtdb, "proposals/" + firebaseKey), null);
+            alert("Đã xóa đề xuất thành công!");
+        } catch (e) {
+            alert("Lỗi khi xóa: " + e.message);
+        }
+    }
+};
+
+function calculateHours(startStr, endStr) {
+    if (!startStr || !endStr) return "0 giờ";
+
+    // Hàm chuyển chuỗi "HH:mm:ss DD/MM/YYYY" hoặc tương tự thành Date object
+    const parseCustomDate = (str) => {
+        // Tách phần thời gian và ngày
+        const parts = str.split(' ');
+        const timePart = parts[0]; // "19:34:28"
+        const datePart = parts[1]; // "13/6/2026"
+        
+        const [h, m, s] = timePart.split(':');
+        const [d, mo, y] = datePart.split('/');
+        
+        // Lưu ý: tháng trong JS bắt đầu từ 0 (tháng 6 là 5)
+        return new Date(y, mo - 1, d, h, m, s);
+    };
+
+    const start = parseCustomDate(startStr);
+    const end = parseCustomDate(endStr);
+    
+    const diffMs = end - start;
+    if (diffMs < 0) return "Lỗi giờ";
+    
+    const diffHrs = (diffMs / (1000 * 60 * 60)).toFixed(1);
+    return diffHrs + " giờ";
+}
+
+document.getElementById('btn-confirm-ot').addEventListener('click', async () => {
+    const taskId = document.getElementById('ot-task-id').value;
+    const reason = document.getElementById('ot-reason-input').value.trim();
+    
+    if(!reason) return alert("Vui lòng nhập lý do tăng ca!");
+    
+    if (navigator.geolocation) {
+        // Truyền GEO_OPTIONS vào đây
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const updates = {};
+            updates[`tech_tasks/${taskId}/status`] = "overtime-in";
+            updates[`tech_tasks/${taskId}/timeOTStart`] = getVietnamTimeString();
+            updates[`tech_tasks/${taskId}/otReason`] = reason;
+            updates[`tech_tasks/${taskId}/locOTInLat`] = pos.coords.latitude;
+            updates[`tech_tasks/${taskId}/locOTInLng`] = pos.coords.longitude;
+            
+            await update(ref(rtdb), updates); 
+            document.getElementById('popup-ot').classList.add('hidden');
+            alert("Đã bắt đầu tăng ca!");
+        }, (err) => {
+            alert("Lỗi GPS: " + err.message);
+        }, GEO_OPTIONS); // <--- Sử dụng biến toàn cục ở đây
+    }
+});
