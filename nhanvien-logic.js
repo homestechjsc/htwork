@@ -177,25 +177,30 @@ function renderTasks() {
         if(task.status === 'overtime-in') matchedStatus = 'in-progress';
         if (currentFilter !== "all" && matchedStatus !== currentFilter) return;
 
-        // LOGIC SO SÁNH KHOẢNG NGÀY CHUẨN ISO (yyyy-mm-dd)
+        // --- LOGIC LỌC NGÀY CHUẨN XÁC GIỐNG TRUONGPHONG-LOGIC.JS ---
         let matchedDateRange = true;
-        let taskDateStr = "";
+        if (filterStartDate || filterEndDate) {
+            if (!task.createdAt) {
+                matchedDateRange = false;
+            } else {
+                // Tách phần ngày từ chuỗi "HH:MM:SS DD/MM/YYYY" hoặc "DD/MM/YYYY"
+                const parts = task.createdAt.split(' ');
+                const datePart = parts.length > 1 ? parts[1] : parts[0]; 
+                const dateSegments = datePart.split('/'); 
+                
+                if (dateSegments.length === 3) {
+                    const y = dateSegments[2];
+                    const m = dateSegments[1].padStart(2, '0');
+                    const d = dateSegments[0].padStart(2, '0');
+                    const taskDateStr = `${y}-${m}-${d}`;
 
-        if (task.createdAt) {
-            const datePart = task.createdAt.split(' ')[0]; 
-            if (datePart.includes('/')) {
-                const parts = datePart.split('/');
-                taskDateStr = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-            } else if (datePart.includes('-')) {
-                taskDateStr = datePart;
+                    if (filterStartDate && taskDateStr < filterStartDate) matchedDateRange = false;
+                    if (filterEndDate && taskDateStr > filterEndDate) matchedDateRange = false;
+                } else {
+                    // Nếu dữ liệu ngày tháng không đúng format, loại bỏ
+                    matchedDateRange = false;
+                }
             }
-        }
-
-        if (taskDateStr) {
-            if (filterStartDate && taskDateStr < filterStartDate) matchedDateRange = false;
-            if (filterEndDate && taskDateStr > filterEndDate) matchedDateRange = false;
-        } else {
-            if (filterStartDate || filterEndDate) matchedDateRange = false;
         }
 
         if (!matchedDateRange) return;
